@@ -3,7 +3,9 @@ Mock REST server for E2E test. Run mock server as a seperated server with config
 
 ## Build
 git clone https://github.com/xelatex/REST-mock-server.git REST-mock-server
+
 cd REST-mock-server
+
 go build
 
 ## Get help
@@ -11,6 +13,7 @@ go build
 
 ## Run
 mkdir config_data
+
 ./REST-mock-server -c ./config_data
 
 ## Usage
