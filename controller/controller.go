@@ -32,11 +32,11 @@ func (c *Controller) GetMessage(r *Request, w *http.ResponseWriter) {
 	filename := fmt.Sprintf("%s/%s/%s", c.configPath, r.HttpRequest.URL.Path, c.getFilename(r.HttpRequest.Method))
 	data, err := ioutil.ReadFile(filename)
 	if err != nil {
-		log.Error.Printf("%s", err)
-		fmt.Fprintf(*w, "%s", err)
+		log.Info.Printf("GetMessage: URI not found, %s.", r.HttpRequest.URL.Path)
 		(*w).WriteHeader(http.StatusNotFound)
 		return
 	}
+	log.Debug.Println("GetMessage: Get message:", string(data))
 
 	//	var response2 Message
 	//	response2.Content = "{'name':'john'}"
@@ -55,10 +55,9 @@ func (c *Controller) GetMessage(r *Request, w *http.ResponseWriter) {
 	if err != nil {
 		log.Error.Printf("GetMessage: Json unmarshal failed, %s", err)
 		fmt.Fprintf(*w, "Json unmarshal failed, %s", err)
-		(*w).WriteHeader(http.StatusNotFound)
+		(*w).WriteHeader(http.StatusInternalServerError)
 		return
 	}
-	log.Debug.Println("GetMessage: Get message:", msg)
 	for key, values := range msg.Header {
 		for i := range values {
 			(*w).Header().Add(key, values[i])
@@ -98,8 +97,8 @@ func (c *Controller) GetControlMessage(r *Request, w *http.ResponseWriter) {
 	data, err := ioutil.ReadFile(filename)
 	if err != nil {
 		log.Error.Printf("GetControlMessage: Read file failed, %s", err)
-		fmt.Fprintf(*w, "Read file failed, %s", err)
 		(*w).WriteHeader(http.StatusNotFound)
+		fmt.Fprintf(*w, "Read file failed, %s", err)
 		return
 	}
 
