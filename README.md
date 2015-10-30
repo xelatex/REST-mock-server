@@ -9,12 +9,12 @@ cd REST-mock-server
 go build
 
 ## Get help
-./REST-mock-server -h
+./REST-mock-server.git -h
 
 ## Run
 mkdir config_data
 
-./REST-mock-server -c ./config_data
+./REST-mock-server.git -c ./config_data
 
 ## Usage
 Use mock server (default: 0.0.0.0:1080) to get mock result, and use control server (default: 0.0.0.0:1070) to get/add/modify mock server behaviour.
