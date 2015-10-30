@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
+	"os"
 	"strings"
 
 	"../api"
@@ -77,6 +78,17 @@ func (c *Controller) getFilename(method string) string {
 	return fmt.Sprintf("?!@#$%%^%s&*().json", method)
 }
 
+func (c *Controller) createDirIfNotExist(path string) {
+	if _, err := os.Stat(path); os.IsNotExist(err) {
+		log.Debug.Printf("Create new path: %s\n", path)
+		err2 := os.Mkdir(path, 0755)
+		if err2 != nil {
+			log.Error.Fatalf("Can not create dir: %s, %s", path, err2)
+			return
+		}
+	}
+}
+
 func (c *Controller) GetControlMessage(r *Request, w *http.ResponseWriter) {
 	method := r.HttpRequest.Header.Get("method")
 	if method == "" {
@@ -101,34 +113,35 @@ func (c *Controller) PostControlMessage(r *Request, w *http.ResponseWriter) {
 	if method == "" {
 		method = "GET"
 	}
+	c.createDirIfNotExist(fmt.Sprintf("%s/%s", c.configPath, r.HttpRequest.URL.Path))
 	filename := fmt.Sprintf("%s/%s/%s", c.configPath, r.HttpRequest.URL.Path, c.getFilename(method))
 	data, err := ioutil.ReadAll(r.HttpRequest.Body)
 	if err != nil {
 		log.Error.Printf("PostControlMessage: Read http request body failed, %s", err)
-		fmt.Fprintf(*w, "Read http request body failed, %s", err)
 		(*w).WriteHeader(http.StatusBadRequest)
+		fmt.Fprintf(*w, "Read http request body failed, %s", err)
 		return
 	}
 	var msg api.Message
 	err = json.Unmarshal(data, &msg)
 	if err != nil {
 		log.Error.Printf("PostControlMessage: Convert request body to Message failed, %s", err)
-		fmt.Fprintf(*w, "Convert request body to Message failed, %s", err)
 		(*w).WriteHeader(http.StatusBadRequest)
+		fmt.Fprintf(*w, "Convert request body to Message failed, %s", err)
 		return
 	}
 	msgData, err := json.Marshal(msg)
 	if err != nil {
 		log.Error.Printf("PostControlMessage: Json marshal failed, %s", err)
-		fmt.Fprintf(*w, "Json marshal failed, %s", err)
 		(*w).WriteHeader(http.StatusInternalServerError)
+		fmt.Fprintf(*w, "Json marshal failed, %s", err)
 		return
 	}
 	err = ioutil.WriteFile(filename, msgData, 0644)
 	if err != nil {
 		log.Error.Printf("PostControlMessage: Write file failed, %s", err)
-		fmt.Fprintf(*w, "Write file failed, %s", err)
 		(*w).WriteHeader(http.StatusInternalServerError)
+		fmt.Fprintf(*w, "Write file failed, %s", err)
 		return
 	}
 	log.Debug.Println("Write control message:", strings.TrimSuffix(string(msgData), "\n"))
