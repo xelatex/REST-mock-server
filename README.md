@@ -31,7 +31,9 @@ Issue a REST POST request with header "method:METHOD" to designate the type of m
 curl -X POST -H "method:GET" --data '{"Status":200,"Content":"{'name':'john'}","Header":{"A":["a1","a2"],"B":["b"]},"ContentType":"text/json; charset=utf-8"}' -i "http://localhost:1070/abc"
 
 #### Delete mock rules
-Developing!
+Issue a REST DELETE request with header "method:METHOD" to delete a mock rule
+
+curl -X DELETE -H "method:GET" -i "http://localhost:1070/abc"
 
 
 LISCENCE: MIT Lisence

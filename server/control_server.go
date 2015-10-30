@@ -44,9 +44,11 @@ func (s *ControlServer) handler(w http.ResponseWriter, r *http.Request) {
 		s.c.GetControlMessage(&cr, &w)
 	} else if r.Method == "POST" {
 		s.c.PostControlMessage(&cr, &w)
+	} else if r.Method == "DELETE" {
+		s.c.DeleteControlMessage(&cr, &w)
 	} else {
 		log.Info.Println("Method in control server not supported: " + r.Method)
-		fmt.Fprint(w, "Method in control server not supported: "+r.Method)
 		w.WriteHeader(http.StatusBadRequest)
+		fmt.Fprint(w, "Method in control server not supported: "+r.Method)
 	}
 }

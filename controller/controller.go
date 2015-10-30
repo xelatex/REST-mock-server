@@ -146,3 +146,28 @@ func (c *Controller) PostControlMessage(r *Request, w *http.ResponseWriter) {
 	log.Debug.Println("Write control message:", strings.TrimSuffix(string(msgData), "\n"))
 	(*w).WriteHeader(http.StatusOK)
 }
+
+func (c *Controller) DeleteControlMessage(r *Request, w *http.ResponseWriter) {
+	method := r.HttpRequest.Header.Get("method")
+	if method == "" {
+		method = "GET"
+	}
+
+	filename := fmt.Sprintf("%s/%s/%s", c.configPath, r.HttpRequest.URL.Path, c.getFilename(method))
+	if _, err := os.Stat(filename); os.IsNotExist(err) {
+		log.Debug.Printf("File not exist: %s\n", filename)
+		(*w).WriteHeader(http.StatusNotFound)
+		fmt.Fprintf(*w, "File not exist: %s\n", filename)
+		return
+	}
+
+	err := os.Remove(filename)
+	if err != nil {
+		log.Error.Printf("DeleteControlMessage: Delete file failed, %s, %s", filename, err)
+		(*w).WriteHeader(http.StatusInternalServerError)
+		fmt.Fprintf(*w, "DeleteControlMessage: Delete file failed, %s, %s", filename, err)
+		return
+	}
+	log.Debug.Println("Delete control message:", filename)
+	(*w).WriteHeader(http.StatusOK)
+}
