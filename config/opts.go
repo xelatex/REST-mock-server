@@ -31,3 +31,9 @@ func Usage() {
 	fmt.Printf("%s\n", usageStr)
 	os.Exit(0)
 }
+
+// PrintServerAndExit will print our version and exit.
+func PrintServerAndExit() {
+	fmt.Printf("mock-server version %s\n", VERSION)
+	os.Exit(0)
+}

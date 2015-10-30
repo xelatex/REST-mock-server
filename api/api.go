@@ -1,16 +1,12 @@
 // Copyright 2015-2018 Arthur Chunqi Li. All rights reserved.
 
-package controller
+package api
 
 import (
 	"net/http"
 )
 
-type Request struct {
-	HttpRequest *http.Request
-}
-
-type Response struct {
+type Message struct {
 	Status      int
 	Content     string
 	Header      http.Header

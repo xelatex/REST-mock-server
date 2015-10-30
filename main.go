@@ -4,15 +4,19 @@ package main
 
 import (
 	"flag"
-	"log"
 	"os"
 
 	"./config"
+	"./log"
 	"./server"
 )
 
 func main() {
 	var showVersion bool
+
+	// Init log
+	log.Init(os.Stdout, os.Stdout, os.Stdout, os.Stderr)
+
 	// Server options
 	opts := config.Options{}
 
@@ -33,25 +37,30 @@ func main() {
 
 	// Show version and exit
 	if showVersion {
-		server.PrintServerAndExit()
+		config.PrintServerAndExit()
 	}
 
 	if opts.Port == opts.ControlPort {
-		log.Printf("ERROR: port and control port (%d) cannot be the same.\n", opts.Port)
+		log.Error.Printf("ERROR: port and control port (%d) cannot be the same.\n", opts.Port)
 		os.Exit(-1)
 	}
 
 	if _, err := os.Stat(opts.ConfigPath); os.IsNotExist(err) {
-		log.Fatalf("no such file or directory: %s\n", opts.ConfigPath)
+		log.Error.Fatalf("no such file or directory: %s\n", opts.ConfigPath)
 		return
 	}
 
-	log.Printf("host: %s\n", opts.Host)
-	log.Printf("port: %d\n", opts.Port)
-	log.Printf("control port: %d\n", opts.ControlPort)
+	log.Debug.Printf("host: %s\n", opts.Host)
+	log.Debug.Printf("port: %d\n", opts.Port)
+	log.Debug.Printf("control port: %d\n", opts.ControlPort)
 
 	// Create the server with appropriate options.
 	s := server.New(opts)
-	// Start things up. Block here until done.
-	s.Start()
+	// Start things up
+	go s.Start()
+
+	// Create the control server with appropriate options.
+	cs := server.NewControlServer(opts)
+	// Start control server. Block here until done.
+	cs.Start()
 }
